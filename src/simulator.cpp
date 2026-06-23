@@ -36,6 +36,12 @@ void load(Manager &manager, CellularAutomaton *automaton, string data) {
     automaton->load(manager.queue(), manager.state(), 0, 0, data, events);
 }
 
+void step(Manager &manager) {
+    std::vector<Event> events;
+    manager.state().swapBuffers();
+    manager.automaton()->step(manager.queue(), manager.state(), events);
+}
+
 void updateTitle(GLFWwindow *win, UserPointer *data) {
     Manager &manager = data->manager;
     string title = format("{} [{}] (x{})", manager.automaton()->name(), manager.state().rule(), data->speed);
@@ -70,6 +76,8 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
         data->speed -= AMOUNT(mods);
     if (key == GLFW_KEY_RIGHT_BRACKET && action != GLFW_RELEASE)
         data->speed += AMOUNT(mods);
+    if (key == GLFW_KEY_PERIOD && action != GLFW_RELEASE && !data->speed)
+        step(manager);
 
     if (key == GLFW_KEY_V && action != GLFW_RELEASE && mods == GLFW_MOD_CONTROL) {
         data->speed = 0;
@@ -121,11 +129,8 @@ void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
         glfwSwapBuffers(win);
         glfwPollEvents();
 
-        for (uint8_t i = data.speed; i > 0; i--) {
-            std::vector<Event> events;
-            state.swapBuffers();
-            manager.automaton()->step(q, state, events);
-        }
+        for (uint8_t i = data.speed; i > 0; i--)
+            step(manager);
     }
 }
 #endif
