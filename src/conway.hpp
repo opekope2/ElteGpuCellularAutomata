@@ -26,9 +26,10 @@ public:
 
     string name() override { return "Conway's Game of Life"; }
 
+    string sampleData() override { return GOSPER_GLIDER_GUN; }
+
     void init(CommandQueue &q, State &state, std::vector<Event> &events) override {
-        q.enqueueFillBuffer<cell_t>(state.previous(), (cell_t)0, 0, sizeof(cell_t) * state.width() * state.height());
-        load(q, state, 0, 0, GOSPER_GLIDER_GUN, events);
+        q.enqueueFillBuffer<cell_t>(state.current(), (cell_t)0, 0, sizeof(cell_t) * state.width() * state.height());
         q.finish();
     }
 
@@ -40,7 +41,7 @@ public:
             x,
             y,
             dataBuf,
-            state.previous());
+            state.current());
 
         q.finish();
         events.push_back(loadCellsEvent);

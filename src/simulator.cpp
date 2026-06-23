@@ -14,6 +14,7 @@
 #include <format>
 #include <iostream>
 #include <numeric>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -28,6 +29,12 @@ struct UserPointer {
     Renderer &renderer;
     uint8_t speed = 0;
 };
+
+void load(Manager &manager, CellularAutomaton *automaton, string data) {
+    std::vector<Event> events;
+    automaton->init(manager.queue(), manager.state(), events);
+    automaton->load(manager.queue(), manager.state(), 0, 0, data, events);
+}
 
 void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods) {
     UserPointer *data = static_cast<UserPointer *>(glfwGetWindowUserPointer(window));
@@ -57,6 +64,14 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_RIGHT_BRACKET && action != GLFW_RELEASE)
         data->speed += AMOUNT(mods);
 
+    if (key == GLFW_KEY_V && action != GLFW_RELEASE && mods == GLFW_MOD_CONTROL) {
+        data->speed = 0;
+        renderer.offsetX(0), renderer.offsetY(0);
+        auto clipboard = glfwGetClipboardString(window);
+        if (clipboard != nullptr)
+            load(manager, manager.automaton(), clipboard);
+    }
+
     if (key == GLFW_KEY_Q && action != GLFW_RELEASE)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 
@@ -72,10 +87,7 @@ void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
     Renderer renderer(ctx, state);
     UserPointer data{manager, renderer};
 
-    {
-        std::vector<Event> events;
-        manager.automaton()->init(q, state, events);
-    }
+    load(manager, manager.automaton(), manager.automaton()->sampleData());
 
     glfwSetWindowTitle(win, manager.automaton()->name().c_str());
     glfwSetWindowUserPointer(win, &data);
@@ -94,8 +106,8 @@ void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
 
         for (uint8_t i = data.speed; i > 0; i--) {
             std::vector<Event> events;
-            manager.automaton()->step(q, state, events);
             state.swapBuffers();
+            manager.automaton()->step(q, state, events);
         }
     }
 }
