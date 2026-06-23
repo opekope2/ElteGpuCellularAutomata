@@ -36,10 +36,17 @@ void load(Manager &manager, CellularAutomaton *automaton, string data) {
     automaton->load(manager.queue(), manager.state(), 0, 0, data, events);
 }
 
+void updateTitle(GLFWwindow *win, UserPointer *data) {
+    Manager &manager = data->manager;
+    string title = format("{} [{}] (x{})", manager.automaton()->name(), manager.state().rule(), data->speed);
+    glfwSetWindowTitle(win, title.c_str());
+}
+
 void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods) {
     UserPointer *data = static_cast<UserPointer *>(glfwGetWindowUserPointer(window));
     Manager &manager = data->manager;
     Renderer &renderer = data->renderer;
+    Rule &rule = manager.state().rule();
 
     cl_uint dx = 0, dy = 0, zoom = 0;
 
@@ -71,6 +78,14 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
         if (clipboard != nullptr)
             load(manager, manager.automaton(), clipboard);
     }
+
+    for (int i = 0; i <= 8; i++)
+        if (key == (GLFW_KEY_0 + i) && action != GLFW_RELEASE) {
+            if (mods == GLFW_MOD_CONTROL)
+                rule.birth ^= 1 << i;
+            else if (mods == GLFW_MOD_SHIFT)
+                rule.survive ^= 1 << i;
+        }
 
     if (key == GLFW_KEY_Q && action != GLFW_RELEASE)
         glfwSetWindowShouldClose(window, GLFW_TRUE);

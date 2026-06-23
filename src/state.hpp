@@ -22,6 +22,8 @@ protected:
     Buffer _prev;
     Buffer _current;
 
+    rule_t _rule;
+
 public:
     State(Context &ctx, CommandQueue &q, cl_uint width, cl_uint height)
         : _width(width),
@@ -35,6 +37,8 @@ public:
 
     Buffer &previous() { return _prev; }
     Buffer &current() { return _current; }
+
+    rule_t &rule() { return _rule; }
 
     void swapBuffers() { swap(_prev, _current); }
 

@@ -15,7 +15,7 @@ const string GOSPER_GLIDER_GUN = "24bo11b$22bobo11b$12b2o6b2o12b2o$11bo3bo4b2o12
 
 class ConwayCellularAutomaton : public CellularAutomaton {
 private:
-    KernelFunctor<Buffer, Buffer> conwayStep;
+    KernelFunctor<rule_t, Buffer, Buffer> conwayStep;
     KernelFunctor<cl_uint, cl_uint, cl_uint, Buffer, Buffer> loadRle;
 
 public:
@@ -50,6 +50,7 @@ public:
     void step(CommandQueue &q, State &state, std::vector<Event> &events) override {
         Event stepEvent = conwayStep(
             EnqueueArgs(q, NDRange(state.width(), state.height())),
+            state.rule(),
             state.previous(),
             state.current());
 

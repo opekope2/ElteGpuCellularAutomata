@@ -1,8 +1,6 @@
 #define DEAD 0
 #define ALIVE 1
 #define WRAP_AROUND(wrap, size) ((wrap) ? (size) : 0)
-#define BIRTH 0b00000100
-#define SURVIVE 0b00000110
 
 uint8 getNeighbors(uint w, uint h, uint id) {
     uint size = w * h;
@@ -35,7 +33,7 @@ kernel void loadRle(uint width, uint x, uint y, global const char *data, cell_bu
                 simulation[pos++] = c == 'o';
 }
 
-kernel void conwayStep(cell_buffer_t old, cell_buffer_t current) {
+kernel void conwayStep(rule_t rule, cell_buffer_t old, cell_buffer_t current) {
     uint x = get_global_id(0);
     uint y = get_global_id(1);
     uint w = get_global_size(0);
@@ -47,7 +45,6 @@ kernel void conwayStep(cell_buffer_t old, cell_buffer_t current) {
     ushort n = 1;
     for (uint i = 0; i < 8; i++)
         n <<= old[neighbors[i]];
-    n >>= 1;
 
-    current[id] = (c == DEAD && (n & BIRTH)) || (c == ALIVE && (n & SURVIVE)) ? ALIVE : DEAD;
+    current[id] = (c == DEAD && (n & rule.birth)) || (c == ALIVE && (n & rule.survive)) ? ALIVE : DEAD;
 }
