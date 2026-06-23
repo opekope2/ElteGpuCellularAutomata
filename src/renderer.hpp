@@ -33,7 +33,6 @@ private:
     GLint _offsetX = 0;
     GLint _offsetY = 0;
     GLint _zoom = 1;
-    uint8_t _speed = 1;
 
 public:
     Renderer(Context &ctx, GlState &state)
@@ -59,9 +58,6 @@ public:
 
     GLint zoom() { return _zoom; }
     void zoom(GLint zoom) { _zoom = max(zoom, 1); }
-
-    uint8_t speed() { return _speed; }
-    void speed(uint8_t speed) { _speed = speed; }
 
     void renderData(CommandQueue &q) {
         q.enqueueAcquireGLObjects(&_state.glObjs());

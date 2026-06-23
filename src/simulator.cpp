@@ -23,11 +23,18 @@ using namespace cl;
 #include <GLFW/glfw3.h>
 #include <epoxy/gl.h>
 
+struct UserPointer {
+    Manager &manager;
+    Renderer &renderer;
+    uint8_t speed = 0;
+};
+
 void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods) {
-    auto *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
+    UserPointer *data = static_cast<UserPointer *>(glfwGetWindowUserPointer(window));
+    Manager &manager = data->manager;
+    Renderer &renderer = data->renderer;
 
     cl_uint dx = 0, dy = 0, zoom = 0;
-    uint8_t speed = renderer->speed();
 
     if (key == GLFW_KEY_LEFT && action != GLFW_RELEASE)
         dx -= AMOUNT(mods);
@@ -44,34 +51,34 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
         zoom -= AMOUNT(mods);
 
     if (key == GLFW_KEY_SPACE && action != GLFW_RELEASE)
-        speed = !speed;
+        data->speed = !data->speed;
     if (key == GLFW_KEY_LEFT_BRACKET && action != GLFW_RELEASE)
-        speed -= AMOUNT(mods);
+        data->speed -= AMOUNT(mods);
     if (key == GLFW_KEY_RIGHT_BRACKET && action != GLFW_RELEASE)
-        speed += AMOUNT(mods);
+        data->speed += AMOUNT(mods);
 
     if (key == GLFW_KEY_Q && action != GLFW_RELEASE)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 
     if (zoom)
-        renderer->zoom(renderer->zoom() + zoom);
+        renderer.zoom(renderer.zoom() + zoom);
     if (dx || dy)
-        renderer->offsetX(renderer->offsetX() + dx), renderer->offsetY(renderer->offsetY() - dy);
-    if (speed != renderer->speed())
-        renderer->speed(speed);
+        renderer.offsetX(renderer.offsetX() + dx), renderer.offsetY(renderer.offsetY() - dy);
 }
 
 void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
     GlState &state = dynamic_cast<GlState &>(manager.state());
     CommandQueue &q = manager.queue();
     Renderer renderer(ctx, state);
+    UserPointer data{manager, renderer};
 
-    std::vector<Event> events;
-    manager.automaton()->init(q, state, events);
-    events.clear();
+    {
+        std::vector<Event> events;
+        manager.automaton()->init(q, state, events);
+    }
 
     glfwSetWindowTitle(win, manager.automaton()->name().c_str());
-    glfwSetWindowUserPointer(win, &renderer);
+    glfwSetWindowUserPointer(win, &data);
     glfwSetKeyCallback(win, handleInput);
 
     while (!glfwWindowShouldClose(win)) {
@@ -85,7 +92,7 @@ void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
         glfwSwapBuffers(win);
         glfwPollEvents();
 
-        for (uint8_t i = renderer.speed(); i > 0; i--) {
+        for (uint8_t i = data.speed; i > 0; i--) {
             std::vector<Event> events;
             manager.automaton()->step(q, state, events);
             state.swapBuffers();
