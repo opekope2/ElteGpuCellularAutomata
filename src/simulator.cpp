@@ -94,6 +94,8 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
         renderer.zoom(renderer.zoom() + zoom);
     if (dx || dy)
         renderer.offsetX(renderer.offsetX() + dx), renderer.offsetY(renderer.offsetY() - dy);
+
+    updateTitle(window, data);
 }
 
 void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
@@ -104,7 +106,7 @@ void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
 
     load(manager, manager.automaton(), manager.automaton()->sampleData());
 
-    glfwSetWindowTitle(win, manager.automaton()->name().c_str());
+    updateTitle(win, &data);
     glfwSetWindowUserPointer(win, &data);
     glfwSetKeyCallback(win, handleInput);
 
