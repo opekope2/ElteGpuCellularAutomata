@@ -27,6 +27,7 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
     auto *renderer = static_cast<Renderer *>(glfwGetWindowUserPointer(window));
 
     cl_uint dx = 0, dy = 0, zoom = 0;
+    uint8_t speed = renderer->speed();
 
     if (key == GLFW_KEY_LEFT && action != GLFW_RELEASE)
         dx -= AMOUNT(mods);
@@ -42,6 +43,13 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_MINUS && action != GLFW_RELEASE)
         zoom -= AMOUNT(mods);
 
+    if (key == GLFW_KEY_SPACE && action != GLFW_RELEASE)
+        speed = !speed;
+    if (key == GLFW_KEY_LEFT_BRACKET && action != GLFW_RELEASE)
+        speed -= AMOUNT(mods);
+    if (key == GLFW_KEY_RIGHT_BRACKET && action != GLFW_RELEASE)
+        speed += AMOUNT(mods);
+
     if (key == GLFW_KEY_Q && action != GLFW_RELEASE)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 
@@ -49,6 +57,8 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
         renderer->zoom(renderer->zoom() + zoom);
     if (dx || dy)
         renderer->offsetX(renderer->offsetX() + dx), renderer->offsetY(renderer->offsetY() - dy);
+    if (speed != renderer->speed())
+        renderer->speed(speed);
 }
 
 void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
@@ -75,9 +85,11 @@ void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
         glfwSwapBuffers(win);
         glfwPollEvents();
 
-        std::vector<Event> events;
-        manager.automaton()->step(q, state, events);
-        state.swapBuffers();
+        for (uint8_t i = renderer.speed(); i > 0; i--) {
+            std::vector<Event> events;
+            manager.automaton()->step(q, state, events);
+            state.swapBuffers();
+        }
     }
 }
 #endif
