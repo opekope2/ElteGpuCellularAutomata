@@ -30,7 +30,6 @@ public:
 
     void init(CommandQueue &q, State &state, std::vector<Event> &events) override {
         q.enqueueFillBuffer<cell_t>(state.current(), (cell_t)0, 0, sizeof(cell_t) * state.width() * state.height());
-        q.finish();
     }
 
     bool load(CommandQueue &q, State &state, cl_uint x, cl_uint y, string &data, std::vector<Event> &events) override {
@@ -46,7 +45,6 @@ public:
             dataBuf,
             state.current());
 
-        q.finish();
         events.push_back(loadCellsEvent);
 
         return true;
@@ -59,7 +57,6 @@ public:
             state.previous(),
             state.current());
 
-        q.finish();
         events.push_back(stepEvent);
     }
 };

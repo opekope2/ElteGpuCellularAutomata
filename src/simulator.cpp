@@ -33,6 +33,7 @@ struct UserPointer {
 bool load(Manager &manager, CellularAutomaton *automaton, string data, std::vector<Event> &events) {
     automaton->init(manager.queue(), manager.state(), events);
     bool success = automaton->load(manager.queue(), manager.state(), 0, 0, data, events);
+    manager.queue().finish();
 
     if (success)
         return true;
@@ -42,6 +43,7 @@ bool load(Manager &manager, CellularAutomaton *automaton, string data, std::vect
 void step(Manager &manager, std::vector<Event> &events) {
     manager.state().swapBuffers();
     manager.automaton()->step(manager.queue(), manager.state(), events);
+    manager.queue().finish();
 }
 
 void updateTitle(GLFWwindow *win, UserPointer *data) {
