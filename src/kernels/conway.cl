@@ -20,7 +20,7 @@ uint8 getNeighbors(uint w, uint h, uint id) {
 
 // TODO parallel
 // TODO check data boundaries
-kernel void loadRle(uint width, uint x, uint y, global const char *data, cell_buffer_t simulation) {
+kernel void loadRle(uint width, uint x, uint y, const global char *data, global cell_t *simulation) {
     ulong length = 0;
     uint offset = x + y * width, pos = offset;
 
@@ -34,7 +34,7 @@ kernel void loadRle(uint width, uint x, uint y, global const char *data, cell_bu
                 simulation[pos++] = c == 'o';
 }
 
-kernel void conwayStep(rule_t rule, cell_buffer_t old, cell_buffer_t current) {
+kernel void conwayStep(rule_t rule, const global cell_t *old, global cell_t *current) {
     uint x = get_global_id(0);
     uint y = get_global_id(1);
     uint w = get_global_size(0);
