@@ -1,3 +1,4 @@
+#include "benchmark.hpp"
 #include "simulator.hpp"
 #include "state.hpp"
 #include "util/cl.hpp"
@@ -10,6 +11,7 @@
 #include <iostream>
 #include <optional>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #if defined(GUI)
@@ -56,17 +58,18 @@ Device getDevice(Platform &platform, string deviceName) {
     throw runtime_error(format("No such device: {}", deviceName));
 }
 
-string getEnvOrEmpty(const char *name) {
+string getEnvOr(const char *name, const char *def) {
     auto env = getenv(name);
-    return env == nullptr ? "" : string(env);
+    return string(env == nullptr ? def : env);
 }
 
 int main(int argc, char **argv) {
     try {
-        string platformName = getEnvOrEmpty("PLATFORM"), deviceName = getEnvOrEmpty("DEVICE");
+        string platformName = getEnvOr("PLATFORM", ""), deviceName = getEnvOr("DEVICE", ""), benchmarkName = getEnvOr("BENCHMARK", "");
+        cl_uint size = stoul(getEnvOr("SIZE", "4096"));
         bool useDefaults = platformName == "" || deviceName == "";
 #if defined(GUI)
-        bool gui = true;
+        bool gui = benchmarkName == "";
 #else
         bool gui = false;
 #endif
@@ -89,14 +92,44 @@ int main(int argc, char **argv) {
 
 #if defined(GUI)
         if (gui) {
-            GlState state(ctx, q, 4096, 4096);
+            GlState state(ctx, q, size, size);
             Manager manager(ctx, q, state);
 
             cellularAutomatonGui(*win, ctx, manager);
             return 0;
         }
 #endif
-        return 0;
+
+        if (benchmarkName == "list") {
+            State state(ctx, q, 1, 1);
+            Manager manager(ctx, q, state);
+
+            for (auto maton : manager.automatons())
+                cout << maton->name() << endl;
+
+            return 0;
+        }
+
+        benchmark::Benchmark benchmark{
+            size,
+            stoi(getEnvOr("BENCHMARK_GENERATIONS", "1024")),
+            getEnvOr("BENCHMARK_DATA", ""),
+            benchmarkName,
+            platform,
+            dev};
+
+        State state(ctx, q, benchmark.size, benchmark.size);
+        Manager manager(ctx, q, state);
+
+        for (auto maton : manager.automatons()) {
+            if (maton->name() != benchmarkName)
+                continue;
+
+            cellularAutomatonBenchmark(manager, benchmark);
+            return 0;
+        }
+
+        throw runtime_error("No such benchmark: " + benchmarkName);
     } catch (const BuildError &e) {
         cerr << format("OpenCL error: {} ({})", e.what(), e.err()) << endl;
 

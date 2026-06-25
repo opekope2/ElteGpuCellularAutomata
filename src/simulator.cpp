@@ -1,19 +1,18 @@
 #include "simulator.hpp"
+#include "benchmark.hpp"
 #include "cellular_automaton.hpp"
 #include "manager.hpp"
 #include "renderer.hpp"
 #include "state.hpp"
+#include "util/cl.hpp"
 #include "util/glfw.hpp"
 #include "util/misc.hpp"
 #include <CL/cl.h>
 #include <CL/cl_platform.h>
 #include <CL/opencl.hpp>
-#include <algorithm>
-#include <cmath>
 #include <cstdint>
 #include <format>
 #include <iostream>
-#include <numeric>
 #include <string>
 #include <vector>
 
@@ -143,3 +142,20 @@ void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
     }
 }
 #endif
+
+void cellularAutomatonBenchmark(Manager &manager, benchmark::Benchmark &benchmark) {
+    cout << benchmark::HEADER << endl;
+
+    {
+        std::vector<Event> events;
+        if (!load(manager, manager.automaton(), benchmark.data, events))
+            return;
+    }
+
+    for (int i = 1; i <= benchmark.generations; i++) {
+        std::vector<Event> events;
+        step(manager, events);
+        cl_ulong ns = getProfilingTimeNs(events);
+        benchmark::printResult(cout, benchmark, i, ns);
+    }
+}
