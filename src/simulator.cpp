@@ -30,14 +30,16 @@ struct UserPointer {
     uint8_t speed = 0;
 };
 
-void load(Manager &manager, CellularAutomaton *automaton, string data) {
-    std::vector<Event> events;
+bool load(Manager &manager, CellularAutomaton *automaton, string data, std::vector<Event> &events) {
     automaton->init(manager.queue(), manager.state(), events);
-    automaton->load(manager.queue(), manager.state(), 0, 0, data, events);
+    bool success = automaton->load(manager.queue(), manager.state(), 0, 0, data, events);
+
+    if (success)
+        return true;
+    return cerr << "Failed to load data: " << data << endl, false;
 }
 
-void step(Manager &manager) {
-    std::vector<Event> events;
+void step(Manager &manager, std::vector<Event> &events) {
     manager.state().swapBuffers();
     manager.automaton()->step(manager.queue(), manager.state(), events);
 }
@@ -53,6 +55,7 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
     Manager &manager = data->manager;
     Renderer &renderer = data->renderer;
     Rule &rule = manager.state().rule();
+    std::vector<Event> events;
 
     cl_uint dx = 0, dy = 0, zoom = 0;
 
@@ -77,14 +80,14 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_RIGHT_BRACKET && action != GLFW_RELEASE)
         data->speed += AMOUNT(mods);
     if (key == GLFW_KEY_PERIOD && action != GLFW_RELEASE && !data->speed)
-        step(manager);
+        step(manager, events);
 
     if (key == GLFW_KEY_V && action != GLFW_RELEASE && mods == GLFW_MOD_CONTROL) {
         data->speed = 0;
         renderer.offsetX(0), renderer.offsetY(0);
         auto clipboard = glfwGetClipboardString(window);
         if (clipboard != nullptr)
-            load(manager, manager.automaton(), clipboard);
+            load(manager, manager.automaton(), clipboard, events);
     }
 
     for (int i = 0; i <= 8; i++)
@@ -112,7 +115,10 @@ void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
     Renderer renderer(ctx, state);
     UserPointer data{manager, renderer};
 
-    load(manager, manager.automaton(), manager.automaton()->sampleData());
+    {
+        std::vector<Event> events;
+        load(manager, manager.automaton(), manager.automaton()->sampleData(), events);
+    }
 
     updateTitle(win, &data);
     glfwSetWindowUserPointer(win, &data);
@@ -129,8 +135,9 @@ void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
         glfwSwapBuffers(win);
         glfwPollEvents();
 
+        std::vector<Event> events;
         for (uint8_t i = data.speed; i > 0; i--)
-            step(manager);
+            step(manager, events);
     }
 }
 #endif

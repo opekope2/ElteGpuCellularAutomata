@@ -19,6 +19,7 @@ uint8 getNeighbors(uint w, uint h, uint id) {
 }
 
 // TODO parallel
+// TODO check data boundaries
 kernel void loadRle(uint width, uint x, uint y, global const char *data, cell_buffer_t simulation) {
     ulong length = 0;
     uint offset = x + y * width, pos = offset;

@@ -33,7 +33,10 @@ public:
         q.finish();
     }
 
-    void load(CommandQueue &q, State &state, cl_uint x, cl_uint y, string data, std::vector<Event> &events) override {
+    bool load(CommandQueue &q, State &state, cl_uint x, cl_uint y, string &data, std::vector<Event> &events) override {
+        if (data.rfind('!') == string::npos)
+            return false;
+
         Buffer dataBuf(ctx, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, data.size(), (void *)data.c_str());
         Event loadCellsEvent = loadRle(
             EnqueueArgs(q, NDRange(1)),
@@ -45,6 +48,8 @@ public:
 
         q.finish();
         events.push_back(loadCellsEvent);
+
+        return true;
     }
 
     void step(CommandQueue &q, State &state, std::vector<Event> &events) override {
