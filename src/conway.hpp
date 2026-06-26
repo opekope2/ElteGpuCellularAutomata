@@ -20,7 +20,7 @@ private:
 
 public:
     ConwayCellularAutomaton(Context &ctx)
-        : CellularAutomaton(ctx, buildProgram(ctx, cl::Program::Sources{XXD_STRING(cellular_automaton_cl), XXD_STRING(render_cl), XXD_STRING(conway_cl)})),
+        : CellularAutomaton(ctx, buildProgram(ctx, cl::Program::Sources{XXD_STRING(cellular_automaton_cl), XXD_STRING(conway_cl)})),
           conwayStep(program, "conwayStep"),
           loadRle(program, "loadRle") {}
 

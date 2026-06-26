@@ -15,6 +15,7 @@ protected:
 public:
     CellularAutomaton(Context &ctx, Program program) : ctx(ctx), program(program) {}
 
+    virtual bool doubleBuffered() { return true; }
     virtual string name() = 0;
     virtual string sampleData() = 0;
     virtual void init(CommandQueue &q, State &state, std::vector<Event> &events) = 0;

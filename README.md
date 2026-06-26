@@ -121,6 +121,8 @@ You'll need `libepoxy-0.dll`, `libgcc_s_seh-1.dll`, `libstdc++-6.dll`, and `libw
 * ⬇️: Pan down by 1 cell
 * `-`: Decrease zoom by 1 step
 * `=`: Increase zoom by 1 step
+* `C`: Simulate Conway's Game of Life
+* `L`: Simulate Langton's Ant
 * `SPACE`: Pause/resume simulation
 * `[`: Decrease simulation speed by 1
 * `]`: Increase simulation speed by 1

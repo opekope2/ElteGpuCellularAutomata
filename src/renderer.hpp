@@ -4,6 +4,7 @@
 
 #include "../gen/kernels.hpp"
 #include "../gen/shaders.hpp"
+#include "manager.hpp"
 #include "state.hpp"
 #include "util/cl.hpp"
 #include "util/gl.hpp"
@@ -24,6 +25,7 @@ private:
     GlVertexArray _vao;
     GlBuffer _vbo;
     GlProgram _conwayProgram;
+    GlProgram _langtonProgram;
     Program _clProgram;
     KernelFunctor<Buffer, ImageGL> _render;
 
@@ -38,6 +40,7 @@ public:
         : _vao(createVertexArray()),
           _vbo(createBuffer()),
           _conwayProgram(createShaderProgram(reinterpret_cast<char *>(conway_vert), reinterpret_cast<char *>(conway_frag))),
+          _langtonProgram(createShaderProgram(reinterpret_cast<char *>(langton_vert), reinterpret_cast<char *>(langton_frag))),
           _clProgram(buildProgram(ctx, cl::Program::Sources{XXD_STRING(cellular_automaton_cl), XXD_STRING(render_cl)})),
           _render(_clProgram, "render"),
           _state(state) {
@@ -68,11 +71,12 @@ public:
         q.finish();
     }
 
-    void render(int w, int h, GlTexture &data) {
+    void render(int w, int h, Manager &manager, GlTexture &data) {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        GlProgram &program = _conwayProgram;
+        // TODO make polymorphic
+        GlProgram &program = manager.automaton() == manager.conway() ? _conwayProgram : _langtonProgram;
 
         glUseProgram(program);
 

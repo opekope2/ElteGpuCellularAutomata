@@ -29,9 +29,9 @@ struct UserPointer {
     uint8_t speed = 0;
 };
 
-bool load(Manager &manager, CellularAutomaton *automaton, string data, std::vector<Event> &events) {
-    automaton->init(manager.queue(), manager.state(), events);
-    bool success = automaton->load(manager.queue(), manager.state(), 0, 0, data, events);
+bool load(Manager &manager, string data, std::vector<Event> &events) {
+    manager.automaton()->init(manager.queue(), manager.state(), events);
+    bool success = manager.automaton()->load(manager.queue(), manager.state(), 0, 0, data, events);
     manager.queue().finish();
 
     if (success)
@@ -40,7 +40,8 @@ bool load(Manager &manager, CellularAutomaton *automaton, string data, std::vect
 }
 
 void step(Manager &manager, std::vector<Event> &events) {
-    manager.state().swapBuffers();
+    if (manager.automaton()->doubleBuffered())
+        manager.state().swapBuffers();
     manager.automaton()->step(manager.queue(), manager.state(), events);
     manager.queue().finish();
 }
@@ -83,12 +84,17 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_PERIOD && action != GLFW_RELEASE && !data->speed)
         step(manager, events);
 
+    if (key == GLFW_KEY_C && action != GLFW_RELEASE)
+        manager.automaton(manager.conway()), load(manager, manager.automaton()->sampleData(), events);
+    if (key == GLFW_KEY_L && action != GLFW_RELEASE)
+        manager.automaton(manager.langton()), load(manager, manager.automaton()->sampleData(), events);
+
     if (key == GLFW_KEY_V && action != GLFW_RELEASE && mods == GLFW_MOD_CONTROL) {
         data->speed = 0;
         renderer.offsetX(0), renderer.offsetY(0);
         auto clipboard = glfwGetClipboardString(window);
         if (clipboard != nullptr)
-            load(manager, manager.automaton(), clipboard, events);
+            load(manager, clipboard, events);
     }
 
     for (int i = 0; i <= 8; i++)
@@ -118,7 +124,7 @@ void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
 
     {
         std::vector<Event> events;
-        load(manager, manager.automaton(), manager.automaton()->sampleData(), events);
+        load(manager, manager.automaton()->sampleData(), events);
     }
 
     updateTitle(win, &data);
@@ -131,7 +137,7 @@ void cellularAutomatonGui(GlfwWindow &win, Context &ctx, Manager &manager) {
         glViewport(0, 0, w, h);
 
         renderer.renderData(q);
-        renderer.render(w, h, state.texture());
+        renderer.render(w, h, manager, state.texture());
 
         glfwSwapBuffers(win);
         glfwPollEvents();
@@ -148,7 +154,7 @@ void cellularAutomatonBenchmark(Manager &manager, benchmark::Benchmark &benchmar
 
     {
         std::vector<Event> events;
-        if (!load(manager, manager.automaton(), benchmark.data, events))
+        if (!load(manager, benchmark.data, events))
             return;
     }
 
