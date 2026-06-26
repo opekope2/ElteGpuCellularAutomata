@@ -10,7 +10,6 @@
 #include "util/misc.hpp"
 #include <CL/opencl.hpp>
 #include <algorithm>
-#include <cstdint>
 #include <epoxy/gl.h>
 
 #define VERTEX_COUNT (4 * 2)
@@ -24,7 +23,7 @@ class Renderer {
 private:
     GlVertexArray _vao;
     GlBuffer _vbo;
-    GlProgram _glProgram;
+    GlProgram _conwayProgram;
     Program _clProgram;
     KernelFunctor<Buffer, ImageGL> _render;
 
@@ -38,7 +37,7 @@ public:
     Renderer(Context &ctx, GlState &state)
         : _vao(createVertexArray()),
           _vbo(createBuffer()),
-          _glProgram(createShaderProgram(reinterpret_cast<char *>(cellular_automaton_vert), reinterpret_cast<char *>(cellular_automaton_frag))),
+          _conwayProgram(createShaderProgram(reinterpret_cast<char *>(conway_vert), reinterpret_cast<char *>(conway_frag))),
           _clProgram(buildProgram(ctx, cl::Program::Sources{XXD_STRING(cellular_automaton_cl), XXD_STRING(render_cl)})),
           _render(_clProgram, "render"),
           _state(state) {
@@ -73,15 +72,17 @@ public:
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(_glProgram);
+        GlProgram &program = _conwayProgram;
+
+        glUseProgram(program);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, data);
 
-        glUniform1i(glGetUniformLocation(_glProgram, "data"), 0);
-        glUniform2i(glGetUniformLocation(_glProgram, "res"), w, h);
-        glUniform2i(glGetUniformLocation(_glProgram, "offset"), _offsetX, _offsetY);
-        glUniform1i(glGetUniformLocation(_glProgram, "zoom"), _zoom);
+        glUniform1i(glGetUniformLocation(program, "data"), 0);
+        glUniform2i(glGetUniformLocation(program, "res"), w, h);
+        glUniform2i(glGetUniformLocation(program, "offset"), _offsetX, _offsetY);
+        glUniform1i(glGetUniformLocation(program, "zoom"), _zoom);
 
         glBindVertexArray(_vao);
         glDrawArrays(GL_TRIANGLE_FAN, 0, VERTEX_COUNT);
