@@ -126,6 +126,7 @@ int main(int argc, char **argv) {
             if (maton->name() != benchmarkName)
                 continue;
 
+            manager.automaton(maton);
             cellularAutomatonBenchmark(manager, benchmark);
             return 0;
         }
