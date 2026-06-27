@@ -29,7 +29,7 @@ inline cl_ulong getProfilingTimeNs(std::vector<cl::Event> &events) {
 template <typename... Args>
 cl::Program buildProgram(Args &&...args) {
     cl::Program program(std::forward<Args>(args)...);
-    program.build();
+    program.build("-cl-std=CL2.0");
     return program;
 }
 

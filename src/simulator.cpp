@@ -96,8 +96,8 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
 
     if (key == GLFW_KEY_C && action != GLFW_RELEASE)
         manager.automaton(manager.conway()), load(manager, manager.automaton()->sampleData(), events);
-    if (key == GLFW_KEY_L && action != GLFW_RELEASE)
-        manager.automaton(manager.langton()), load(manager, manager.automaton()->sampleData(), events);
+    if (key == GLFW_KEY_T && action != GLFW_RELEASE)
+        manager.automaton(manager.turmite()), load(manager, manager.automaton()->sampleData(), events);
 
     if (key == GLFW_KEY_V && action != GLFW_RELEASE && mods == GLFW_MOD_CONTROL) {
         data->speed = 0;

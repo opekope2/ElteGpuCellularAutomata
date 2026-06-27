@@ -25,7 +25,7 @@ private:
     GlVertexArray _vao;
     GlBuffer _vbo;
     GlProgram _conwayProgram;
-    GlProgram _langtonProgram;
+    GlProgram _turmiteProgram;
     Program _clProgram;
     KernelFunctor<Buffer, ImageGL> _render;
 
@@ -40,7 +40,7 @@ public:
         : _vao(createVertexArray()),
           _vbo(createBuffer()),
           _conwayProgram(createShaderProgram(reinterpret_cast<char *>(conway_vert), reinterpret_cast<char *>(conway_frag))),
-          _langtonProgram(createShaderProgram(reinterpret_cast<char *>(langton_vert), reinterpret_cast<char *>(langton_frag))),
+          _turmiteProgram(createShaderProgram(reinterpret_cast<char *>(turmite_vert), reinterpret_cast<char *>(turmite_frag))),
           _clProgram(buildProgram(ctx, cl::Program::Sources{XXD_STRING(cellular_automaton_cl), XXD_STRING(render_cl)})),
           _render(_clProgram, "render"),
           _state(state) {
@@ -76,7 +76,7 @@ public:
         glClear(GL_COLOR_BUFFER_BIT);
 
         // TODO make polymorphic
-        GlProgram &program = manager.automaton() == manager.conway() ? _conwayProgram : _langtonProgram;
+        GlProgram &program = manager.automaton() == manager.conway() ? _conwayProgram : _turmiteProgram;
 
         glUseProgram(program);
 
