@@ -121,10 +121,7 @@ TurmiteRuleset parseRule(string &rule) {
         if (rule.newValue >= rules.nCellValues || rule.nextState >= rules.nStates)
             throw exception();
 
-    if (cur == end)
-        return rules;
-
-    throw exception();
+    return rules;
 }
 
 } // namespace turmite
