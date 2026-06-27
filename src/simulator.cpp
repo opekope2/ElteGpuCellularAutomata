@@ -21,16 +21,6 @@
 using namespace std;
 using namespace cl;
 
-#if defined(GUI)
-#include <GLFW/glfw3.h>
-#include <epoxy/gl.h>
-
-struct UserPointer {
-    Manager &manager;
-    Renderer &renderer;
-    uint8_t speed = 0;
-};
-
 bool load(Manager &manager, string data, std::vector<Event> &events) {
     manager.automaton()->init(manager.queue(), manager.state(), events);
     bool success = manager.automaton()->load(manager.queue(), manager.state(), 0, 0, data, events);
@@ -56,6 +46,16 @@ void step(Manager &manager, std::vector<Event> &events) {
     manager.automaton()->step(manager.queue(), manager.state(), events);
     manager.queue().finish();
 }
+
+#if defined(GUI)
+#include <GLFW/glfw3.h>
+#include <epoxy/gl.h>
+
+struct UserPointer {
+    Manager &manager;
+    Renderer &renderer;
+    uint8_t speed = 0;
+};
 
 void updateTitle(GLFWwindow *win, UserPointer *data) {
     Manager &manager = data->manager;
