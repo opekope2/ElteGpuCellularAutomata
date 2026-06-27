@@ -2,6 +2,11 @@
 #define ALIVE 1
 #define WRAP_AROUND(wrap, size) ((wrap) ? (size) : 0)
 
+typedef struct ConwayRule {
+    ushort birth;
+    ushort survive;
+} conway_rule_t;
+
 uint8 getNeighbors(uint w, uint h, uint id) {
     uint size = w * h;
 
@@ -34,7 +39,7 @@ kernel void loadRle(uint width, uint x, uint y, const global char *data, global 
                 simulation[pos++] = c == 'o';
 }
 
-kernel void conwayStep(rule_t rule, const global cell_t *old, global cell_t *current) {
+kernel void conwayStep(conway_rule_t rule, const global cell_t *old, global cell_t *current) {
     uint x = get_global_id(0);
     uint y = get_global_id(1);
     uint w = get_global_size(0);

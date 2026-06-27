@@ -56,7 +56,6 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
     UserPointer *data = static_cast<UserPointer *>(glfwGetWindowUserPointer(window));
     Manager &manager = data->manager;
     Renderer &renderer = data->renderer;
-    Rule &rule = manager.state().rule();
     std::vector<Event> events;
 
     cl_uint dx = 0, dy = 0, zoom = 0;
@@ -97,13 +96,16 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
             load(manager, clipboard, events);
     }
 
-    for (int i = 0; i <= 8; i++)
-        if (key == (GLFW_KEY_0 + i) && action != GLFW_RELEASE) {
-            if (mods == GLFW_MOD_CONTROL)
-                rule.birth ^= 1 << i;
-            else if (mods == GLFW_MOD_SHIFT)
-                rule.survive ^= 1 << i;
-        }
+    if (auto *conwayAutomaton = dynamic_cast<conway::ConwayCellularAutomaton *>(manager.automaton())) {
+        conway_rule_t &conwayRule = conwayAutomaton->conwayRule();
+        for (int i = 0; i <= 8; i++)
+            if (key == (GLFW_KEY_0 + i) && action != GLFW_RELEASE) {
+                if (mods == GLFW_MOD_CONTROL)
+                    conwayRule.birth ^= 1 << i;
+                else if (mods == GLFW_MOD_SHIFT)
+                    conwayRule.survive ^= 1 << i;
+            }
+    }
 
     if (key == GLFW_KEY_Q && action != GLFW_RELEASE)
         glfwSetWindowShouldClose(window, GLFW_TRUE);

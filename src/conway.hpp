@@ -4,6 +4,7 @@
 #include "cellular_automaton.hpp"
 #include "util/cellular_automaton.hpp"
 #include "util/cl.hpp"
+#include "util/conway.hpp"
 #include "util/misc.hpp"
 #include <CL/cl.h>
 #include <CL/cl_platform.h>
@@ -15,8 +16,10 @@ const string GOSPER_GLIDER_GUN = "24bo11b$22bobo11b$12b2o6b2o12b2o$11bo3bo4b2o12
 
 class ConwayCellularAutomaton : public CellularAutomaton {
 private:
-    KernelFunctor<rule_t, Buffer, Buffer> conwayStep;
+    KernelFunctor<conway_rule_t, Buffer, Buffer> conwayStep;
     KernelFunctor<cl_uint, cl_uint, cl_uint, Buffer, Buffer> loadRle;
+
+    conway_rule_t _rule{1 << 3, 1 << 2 | 1 << 3};
 
 public:
     ConwayCellularAutomaton(Context &ctx)
@@ -27,6 +30,8 @@ public:
     string name() override { return "Conway's Game of Life"; }
 
     string sampleData() override { return GOSPER_GLIDER_GUN; }
+
+    conway_rule_t &conwayRule() { return _rule; }
 
     void init(CommandQueue &q, State &state, std::vector<Event> &events) override {
         q.enqueueFillBuffer<cell_t>(state.current(), (cell_t)0, 0, sizeof(cell_t) * state.width() * state.height());
@@ -53,7 +58,7 @@ public:
     void step(CommandQueue &q, State &state, std::vector<Event> &events) override {
         Event stepEvent = conwayStep(
             EnqueueArgs(q, NDRange(state.width(), state.height())),
-            state.rule(),
+            _rule,
             state.previous(),
             state.current());
 
