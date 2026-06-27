@@ -113,8 +113,8 @@ int main(int argc, char **argv) {
         benchmark::Benchmark benchmark{
             size,
             stoi(getEnvOr("BENCHMARK_GENERATIONS", "1024")),
-            getEnvOr("BENCHMARK_DATA", ""),
             getEnvOr("BENCHMARK_RULE", ""),
+            getEnvOr("BENCHMARK_DATA", ""),
             benchmarkName,
             platform,
             dev};

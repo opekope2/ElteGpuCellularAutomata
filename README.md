@@ -196,4 +196,5 @@ Specify `BENCHMARK=list` to show a list of all benchmarks.
 
 * `SIZE`: The simulation (square) size to benchmark
 * `BENCHMARK_GENERATIONS`: The number generations to run the simulation for
+* `BENCHMARK_RULE`: The rule of the simulation to benchmark
 * `BENCHMARK_DATA`: The generation 0
