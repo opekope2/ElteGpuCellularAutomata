@@ -114,6 +114,7 @@ int main(int argc, char **argv) {
             size,
             stoi(getEnvOr("BENCHMARK_GENERATIONS", "1024")),
             getEnvOr("BENCHMARK_DATA", ""),
+            getEnvOr("BENCHMARK_RULE", ""),
             benchmarkName,
             platform,
             dev};

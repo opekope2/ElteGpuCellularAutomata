@@ -175,6 +175,8 @@ void cellularAutomatonBenchmark(Manager &manager, benchmark::Benchmark &benchmar
 
     {
         std::vector<Event> events;
+        if (!loadRule(manager, benchmark.rule, events))
+            return;
         if (!load(manager, benchmark.data, events))
             return;
     }

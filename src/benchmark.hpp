@@ -34,6 +34,7 @@ const string HEADER = "os" TAB
 struct Benchmark {
     cl_uint size;
     int generations;
+    string rule;
     string data;
     string &name;
     Platform &platform;
