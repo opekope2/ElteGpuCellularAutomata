@@ -59,7 +59,10 @@ void step(Manager &manager, std::vector<Event> &events) {
 
 void updateTitle(GLFWwindow *win, UserPointer *data) {
     Manager &manager = data->manager;
-    string title = format("{} [{}] (x{})", manager.automaton()->name(), manager.state().rule(), data->speed);
+    string rule = manager.automaton()->rule();
+    string title = rule.size() > 128
+                       ? format("{} [{}...{}] (x{})", manager.automaton()->name(), rule.substr(0, 64), rule.substr(rule.size() - 64), data->speed)
+                       : format("{} [{}] (x{})", manager.automaton()->name(), rule, data->speed);
     glfwSetWindowTitle(win, title.c_str());
 }
 
