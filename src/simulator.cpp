@@ -1,10 +1,12 @@
 #include "simulator.hpp"
 #include "benchmark.hpp"
 #include "cellular_automaton.hpp"
+#include "conway.hpp"
 #include "manager.hpp"
 #include "renderer.hpp"
 #include "state.hpp"
 #include "util/cl.hpp"
+#include "util/conway.hpp"
 #include "util/glfw.hpp"
 #include "util/misc.hpp"
 #include <CL/cl.h>
@@ -37,6 +39,15 @@ bool load(Manager &manager, string data, std::vector<Event> &events) {
     if (success)
         return true;
     return cerr << "Failed to load data: " << data << endl, false;
+}
+
+bool loadRule(Manager &manager, string data, std::vector<Event> &events) {
+    bool success = manager.automaton()->rule(manager.queue(), data);
+    manager.queue().finish();
+
+    if (success)
+        return load(manager, manager.automaton()->sampleData(), events);
+    return cerr << "Failed to load rule: " << data << endl, false;
 }
 
 void step(Manager &manager, std::vector<Event> &events) {
@@ -94,6 +105,11 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
         auto clipboard = glfwGetClipboardString(window);
         if (clipboard != nullptr)
             load(manager, clipboard, events);
+    }
+    if (key == GLFW_KEY_B && action != GLFW_RELEASE && mods == GLFW_MOD_CONTROL) {
+        auto clipboard = glfwGetClipboardString(window);
+        if (clipboard != nullptr)
+            loadRule(manager, clipboard, events); // B36/S23
     }
 
     if (auto *conwayAutomaton = dynamic_cast<conway::ConwayCellularAutomaton *>(manager.automaton())) {

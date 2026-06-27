@@ -127,7 +127,8 @@ You'll need `libepoxy-0.dll`, `libgcc_s_seh-1.dll`, `libstdc++-6.dll`, and `libw
 * `[`: Decrease simulation speed by 1
 * `]`: Increase simulation speed by 1
 * `.`: Step the simulation 1 step forward
-* `CTRL`+`V` load data from clipboard
+* `CTRL`+`V`: Load data from clipboard
+* `CTRL`+`B`: Load rule from clipboard
 * `Q`: Quit
 
 Hold `CTRL` to increase or decrease values by 10.

@@ -9,6 +9,10 @@
 #include <CL/cl.h>
 #include <CL/cl_platform.h>
 #include <CL/opencl.hpp>
+#include <cstddef>
+#include <format>
+
+using namespace std;
 
 namespace conway {
 
@@ -30,6 +34,38 @@ public:
     string name() override { return "Conway's Game of Life"; }
 
     string sampleData() override { return GOSPER_GLIDER_GUN; }
+
+    string rule() override { return format("{}", _rule); }
+
+    bool rule(CommandQueue &q, string rule) override {
+        conway_rule_t r{0, 0};
+
+        if (rule.size() == 0 || rule[0] != 'B')
+            return false;
+
+        size_t i;
+        for (i = 1; i < rule.size(); i++) {
+            char c = rule[i];
+            if (c == '/')
+                break;
+            if (c < '0' || c > '8')
+                return false;
+            r.birth |= 1 << (c - '0');
+        }
+
+        if (++i >= rule.size() || rule[i] != 'S')
+            return false;
+
+        for (i++; i < rule.size(); i++) {
+            char c = rule[i];
+            if (c < '0' || c > '8')
+                return false;
+            r.survive |= 1 << (c - '0');
+        }
+
+        _rule = r;
+        return true;
+    }
 
     conway_rule_t &conwayRule() { return _rule; }
 
