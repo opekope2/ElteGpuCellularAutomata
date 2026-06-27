@@ -148,6 +148,45 @@ Specify the `SIZE` environment variable to override the simulation width and hei
 Loading data with "# lines" or the header line may lead to corrupted state.
 Data without an `!` will fail to load.
 
+### Turmites
+
+The Turmite simulation doesn't support loading data.
+
+## Rules
+
+### Conway's Game of Life
+
+A [Rulestring](https://conwaylife.com/wiki/Rulestring#Birth/survival_notation) in Birth/survival notation.
+
+### Turmites
+
+This program recognizes the following syntax for a Turmite rule string:
+
+#### Rule
+
+`{state_0, state_1, ...}`
+
+You must specify at least 1 state, up to 256 states, indexed from 0.
+
+#### State
+
+`{color_0, color_1, ...}`
+
+You must specify at least 1 color, up to 128 colors, indexed from 0.
+All states must have exactly the same number of colors.
+
+#### Color
+
+`{new_color, turn, next_state}`
+
+* `new_color`: The color index to write to the Turmite's cell
+* `turn`
+  * `1`: Don't turn
+  * `2`: Turn right
+  * `4`: U-turn
+  * `8`: Turn left
+* `next_state`: The state index to transition to
+
 ## Benchmark
 
 Specify the `BENCHMARK` environment variable to run a specific benchmark.
