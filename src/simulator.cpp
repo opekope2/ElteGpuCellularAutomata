@@ -66,6 +66,12 @@ void updateTitle(GLFWwindow *win, UserPointer *data) {
     glfwSetWindowTitle(win, title.c_str());
 }
 
+void reset(UserPointer *data) {
+    Renderer &renderer = data->renderer;
+    data->speed = 0;
+    renderer.offsetX(0), renderer.offsetY(0), renderer.zoom(1);
+}
+
 void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods) {
     UserPointer *data = static_cast<UserPointer *>(glfwGetWindowUserPointer(window));
     Manager &manager = data->manager;
@@ -99,21 +105,19 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
             step(manager, events);
 
     if (key == GLFW_KEY_C && action != GLFW_RELEASE)
-        manager.automaton(manager.conway()), load(manager, manager.automaton()->sampleData(), events);
+        manager.automaton(manager.conway()), load(manager, manager.automaton()->sampleData(), events), reset(data);
     if (key == GLFW_KEY_T && action != GLFW_RELEASE)
-        manager.automaton(manager.turmite()), load(manager, manager.automaton()->sampleData(), events);
+        manager.automaton(manager.turmite()), load(manager, manager.automaton()->sampleData(), events), reset(data);
 
     if (key == GLFW_KEY_V && action != GLFW_RELEASE && mods == GLFW_MOD_CONTROL) {
-        data->speed = 0;
-        renderer.offsetX(0), renderer.offsetY(0);
         auto clipboard = glfwGetClipboardString(window);
         if (clipboard != nullptr)
-            load(manager, clipboard, events);
+            load(manager, clipboard, events), reset(data);
     }
     if (key == GLFW_KEY_B && action != GLFW_RELEASE && mods == GLFW_MOD_CONTROL) {
         auto clipboard = glfwGetClipboardString(window);
         if (clipboard != nullptr)
-            loadRule(manager, clipboard, events); // B36/S23
+            loadRule(manager, clipboard, events), reset(data);
     }
 
     if (auto *conwayAutomaton = dynamic_cast<conway::ConwayCellularAutomaton *>(manager.automaton())) {
