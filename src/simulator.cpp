@@ -95,7 +95,8 @@ void handleInput(GLFWwindow *window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_RIGHT_BRACKET && action != GLFW_RELEASE)
         data->speed += AMOUNT(mods);
     if (key == GLFW_KEY_PERIOD && action != GLFW_RELEASE && !data->speed)
-        step(manager, events);
+        for (uint8_t i = AMOUNT(mods); i; i--)
+            step(manager, events);
 
     if (key == GLFW_KEY_C && action != GLFW_RELEASE)
         manager.automaton(manager.conway()), load(manager, manager.automaton()->sampleData(), events);
