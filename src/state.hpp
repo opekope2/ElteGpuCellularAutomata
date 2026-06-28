@@ -6,7 +6,6 @@
 #include <CL/cl_platform.h>
 #include <CL/opencl.hpp>
 #include <cassert>
-#include <epoxy/gl.h>
 #include <utility>
 #include <vector>
 
