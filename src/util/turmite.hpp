@@ -33,7 +33,7 @@ typedef struct TurmiteRule {
 } turmite_rule_t;
 
 typedef struct Ant {
-    uint xy;
+    cl_uint xy;
     cl_uchar facing;
 } ant_t;
 
