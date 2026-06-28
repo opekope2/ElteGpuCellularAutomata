@@ -19,7 +19,10 @@ void printResult(ostream &stream, Benchmark &benchmark, int generation, cl_ulong
     stream << benchmark.device.getInfo<CL_DEVICE_PROFILE>() << TAB;
     stream << benchmark.device.getInfo<CL_DRIVER_VERSION>() << TAB;
 
+    stream << benchmark.name << TAB;
+
     stream << benchmark.size << TAB;
+    stream << benchmark.rule << TAB;
     stream << benchmark.data << TAB;
     stream << generation << TAB;
 

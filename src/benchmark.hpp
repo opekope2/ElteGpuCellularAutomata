@@ -25,7 +25,10 @@ const string HEADER = "os" TAB
                       "device.profile" TAB
                       "driver.version" TAB
 
+                      "benchmark.name" TAB
+
                       "sim.size" TAB
+                      "sim.rule" TAB
                       "sim.data" TAB
                       "sim.generation" TAB
 
