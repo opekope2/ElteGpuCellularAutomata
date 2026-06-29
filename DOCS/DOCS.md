@@ -4,6 +4,34 @@
 
 For each generation, the Game of Life kernel runs for every cell, updating its state based on the supplied rules. Because I started working on this assignment kinda late, I couldn't spend much time optimizing the kernel.
 
+### Performance analysis
+
+I have evaluated the performance of both Life-like and Turmite simulations on multiple operating systems and GPU hardware. However, trying to test Life-like simulations on CPUs would have taken way too long.
+
+The total time it takes to simulate 32768 generations can be seen on the figures below. If a test failed (commonly occurring with Android devices), the data has been extrapolated to 32768 generations with a dimmer color. Only the kernel execution time is measured (not buffer writes), and measured as the difference between `CL_PROFILING_COMMAND_END` and `CL_PROFILING_COMMAND_START`.
+
+The time it takes to simulate this many generations remains mostly consistent per device, with slight variations and a few outliers, and doesn't vary much with the used Life-like rule.
+
+As expected, Android GPUs don't even compare to desktop and Laptop GPUs. In some test cases the NVIDIA Tesla T4 on Google Colab has a very high variance.
+
+For small simulation size, a newer integrated GPU is as fast as an old desktop GPU. A newer dedicated laptop GPU barely beats older desktop GPUs. A datacenter GPU absolutely dominates the chart.
+
+![Game of Life 512x512](GoL512.png)
+
+![Game of Life 4096x409](GoL4096.png)
+
+![Day & Night 512x512](DayNight512.png)
+
+![Day & Night 4096x409](DayNight4096.png)
+
+![HighLife 512x512](HighLife512.png)
+
+![HighLife 4096x409](HighLife4096.png)
+
+![Seeds 512x512](Seeds512.png)
+
+![Seeds 4096x409](Seeds4096.png)
+
 ## Turmites
 
 The turmite kernel is a single-thread kernel. For each generation, it runs for the cell the turmite is in, and updates its state according to the rules. To prove that I understand Turmites, I have created one myself:
@@ -14,8 +42,22 @@ The turmite kernel is a single-thread kernel. For each generation, it runs for t
 
 This paints the entire palette of 128 colors in a straight line, and then moves it forward.
 
-## Performance
+### Performance analysis
 
-On an AMD Radeon RX 470 and a maze size of 4096x4096, the mean execution time was less than 10 microseconds. Unfortunately, due to poor planning, the benchmark data ended up growing over 20 GB (~200MB compressed, due to high redundancy), and destilling the raw data into a more useful form would require hours of compute time, which I don't have before the deadline.
+Trying to test Life-like simulations on CPUs would have taken way too long, and I didn't get to testing Turmites on CPUs, so there are no CPUs in this analysis. However, since the Turmite kernels is single-threaded, most CPUs would probably beat everything in this chart.
 
-This is a highly parallel application, and from what I can tell, there is a huge performance gap between desktop/laptop graphics cards and other hardware (CPUs and Androdi GPUs). On a GPU, the benchmark took about 10 minutes, while on a CPU and on an Android GPU, it took hours. Sauce: trust me, bro!
+The total time it takes to simulate 32768 generations can be seen on the figure below. If a test failed (commonly occurring with Android devices), the data has been extrapolated to 32768 generations with a dimmer color.
+
+For both 512x512 and 4096x4096, the execution time doesn't change much, which can be explained by the single-threaded nature of the Turmite kernel, however, there are some outliers here, too.
+
+What's interesting is that an integrated GPU beat the entire chart, which is very likely a measurement error.
+
+![Turmites 512x512](Turmite512.png)
+
+![Turmites 4096x4096](Turmite4096.png)
+
+## Technical difficulties
+
+I could get the benchmark to run on some Android devices using Termux and clvk, however, it wasn't very stable: many test cases crashed before running the simulation for enough generations.
+
+Not all GPUs in Android devices were created equal: I couldn't get the kernels working on an Adreno 642L GPU (Android), because it wouldn't accept `global char*` (said kernel accepts a C string and loads a Game of Life state).
